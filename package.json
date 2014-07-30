@@ -1,0 +1,23 @@
+{
+  "name": "poor-nosql",
+  "version": "0.0.0",
+  "description": "a poor man's nosql",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reergymerej/poor-nosql.git"
+  },
+  "author": "Jeremy Greer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reergymerej/poor-nosql/issues"
+  },
+  "homepage": "https://github.com/reergymerej/poor-nosql",
+  "devDependencies": {
+    "mocha": "^1.21.3",
+    "willy": "^0.2.4"
+  }
+}
