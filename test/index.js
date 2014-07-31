@@ -1,5 +1,5 @@
 /* jshint node: true */
-/* global describe, it */
+/* global describe, it, beforeEach, afterEach */
 
 'use strict';
 
@@ -23,10 +23,10 @@ describe('crud operations', function () {
     // TODO: Clean this up so the tests can be run in any order.
 
     it('should be able to create', function (done) {
-        poor.create(data, function (err, id) {
+        poor.create(data, function (err, records) {
             will(err).be(null);
 
-            dataId = id;
+            dataId = records[0]._id;
             done();
         });
     });
@@ -60,3 +60,40 @@ describe('crud operations', function () {
         });
     });
 });
+
+describe('inserting multiple records', function () {
+    var records;
+
+    beforeEach(function () {
+        records = [
+            { foo: 'bar' },
+            { baz: 'quux' }
+        ];
+    });
+
+    afterEach(function () {
+
+    });
+
+    it('should work', function (done) {
+        poor.create(records, function (err, records) {
+            will(err).be(null);
+            will(records.length).be(2);
+            done();
+        });
+    });
+});
+
+// describe('queries', function () {
+//     beforeEach(function () {
+
+//     });
+
+//     afterEach(function () {
+
+//     });
+
+//     it('should be cool', function () {
+//         will(1).be(2);
+//     });
+// });

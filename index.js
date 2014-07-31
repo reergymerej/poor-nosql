@@ -71,27 +71,33 @@ var insertId = function (record, id) {
 
 /**
 * Add a record to the db.
-* @param {Object} data
-* @param {Function} done - err, {Number} id
+* @param {Object/Object[]} data
+* @param {Function} done - err, {Object[]} records
 */
 var create = function (data, done) {
-    // TODO: Add support for inserting multiple rows.
+
+    if (!Array.isArray(data)) {
+        data = [data];
+    }
 
     // open db
     openDb(function (err, db) {
-        var id = getId(db);
+        data.forEach(function (record) {
+            var id = getId(db);
 
-        data = insertId(data, id);
+            record = insertId(record, id);
 
-        // insert record
-        db[id] = data;
+            // insert record
+            db[id] = record;
+        });
         
         // close db
         closeDb(db, function (err) {
             if (typeof done === 'function') {
-                done(err, id);
+                done(err, data);
             }
         });
+
     });
 };
 
