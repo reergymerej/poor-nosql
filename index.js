@@ -135,10 +135,33 @@ var update = function (id, data, done) {
     });
 };
 
+/**
+* Delete a record by id.
+* @param {Number} id
+* @param {Function} done - err, {Boolean} deleted 
+*/
+var del = function (id, done) {
+    openDb(function (err, db) {
+        var deleted;
+
+        if (!err) {
+            deleted = delete db[id];
+
+            closeDb(db, function (err) {
+                if (typeof done === 'function') {
+                    done(err ? 'unable to delete' : null, deleted);
+                }
+            });
+        }
+    });
+};
+
+
 // =======================================
 exports.create = create;
 exports.read = read;
 exports.update = update;
+exports.delete = del;
 
 // =======================================
 // TOOD: Add locking mechanism to prevent commits breaking each other.
