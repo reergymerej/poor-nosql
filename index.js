@@ -72,7 +72,7 @@ var insertId = function (record, id) {
 /**
 * Add a record to the db.
 * @param {Object} data
-* @param {Function} done - err
+* @param {Function} done - err, {Number} id
 */
 var create = function (data, done) {
     // TODO: Add support for inserting multiple rows.
@@ -89,7 +89,7 @@ var create = function (data, done) {
         // close db
         closeDb(db, function (err) {
             if (typeof done === 'function') {
-                done(err);
+                done(err, id);
             }
         });
     });
@@ -114,7 +114,7 @@ var read = function (id, done) {
 * Update a record by id.
 * @param {Number} id
 * @param {Object} data
-* @param {Function} done
+* @param {Function} done - err
 */
 var update = function (id, data, done) {
     // TODO: Rework this so we don't have to open
