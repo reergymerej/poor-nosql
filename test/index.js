@@ -72,13 +72,14 @@ describe('inserting multiple records', function () {
     });
 
     afterEach(function () {
-
+        console.log('need to delete records');
     });
 
     it('should work', function (done) {
-        poor.create(records, function (err, records) {
+        poor.create(records, function (err, added) {
             will(err).be(null);
-            will(records.length).be(2);
+            will(added.length).be(2);
+            records = added;
             done();
         });
     });
