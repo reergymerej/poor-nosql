@@ -85,16 +85,42 @@ describe('inserting multiple records', function () {
     });
 });
 
-// describe('queries', function () {
-//     beforeEach(function () {
+describe('queries', function () {
+    var records;
 
-//     });
+    beforeEach(function (done) {
+        records = [
+            { foo: 'bar' },
+            { baz: 'quux' }
+        ];
 
-//     afterEach(function () {
+        poor.create(records, function (err, added) {
+            done();
+        });
+    });
 
-//     });
+    afterEach(function () {
 
-//     it('should be cool', function () {
-//         will(1).be(2);
-//     });
-// });
+    });
+
+    it('should return records based on criteria', function (done) {
+        var ids = (function () {
+            var ids = [];
+            records.forEach(function (record) {
+                ids.push(record._id);
+            });
+            return ids;
+        }());
+
+        var criteria = {
+            _id: {
+                $in: ids
+            }
+        };
+
+        poor.read(criteria, function (err, records) {
+            will(records.length).be(2);
+            done();
+        });
+    });
+});

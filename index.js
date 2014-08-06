@@ -103,15 +103,19 @@ var create = function (data, done) {
 
 /**
 * Read a record from the db.
-* @param {Number} id
+* @param {Number/Object} query _id number of record or query object
 * @param {Function} done - err, record
 */
-var read = function (id, done) {
+var read = function (query, done) {
+    
     openDb(function (err, db) {
         if (!err) {
-
-            // TODO: Add support for queries.
-            done(err, db[id]);
+            if (typeof query === 'number') {
+                done(null, db[query]);
+            } else {
+                query = new Query(query);
+                done(null, query.getMatches(db));
+            }
         }
     });
 };
@@ -162,6 +166,90 @@ var del = function (id, done) {
     });
 };
 
+/**
+* @private
+* @param {Object} config
+* The config object's properties should be field names.
+* The properties' values should be Conditions.
+*/
+var Query = function (config) {
+    var that = this;
+    var conditions = [];
+
+    Object.keys(config).forEach(function (field) {
+        conditions.push(new Condition(config[field], field));
+    });
+    
+    this.conditions = conditions;
+};
+
+/**
+* @private
+* Get matches from a collection.
+* @param {Object} collection
+* @return {Object[]}
+*/
+Query.prototype.getMatches = function (collection) {
+    var that = this;
+    var matches = [];
+
+    Object.keys(collection).forEach(function (id) {
+        var record = collection[id];
+        var matchesConditions = true;
+
+        that.conditions.forEach(function (condition) {
+            // TODO: Use an iterator we can break out of.
+            if (matchesConditions) {
+                matchesConditions = condition.isMatch(record);
+            }
+        });
+
+        if (matchesConditions) {
+            matches.push(record);
+        }
+    });
+
+    return matches;
+};
+
+/**
+* @private
+* @param {Object} config
+* @param {String} field
+* properties should be operators ($in, $lt, $gt, etc.)
+*/
+var Condition = function (config, field) {
+    this.config = config;
+    this.field = field;
+    this.operators = Object.keys(config);
+};
+
+/**
+* @private
+* Does a record match this condition?
+* @param {Object} record
+* @return {Boolean}
+*/
+Condition.prototype.isMatch = function (record) {
+    var that = this;
+    var match = true;
+    var fieldValue = record[this.field];
+
+    this.operators.forEach(function (operator) {
+        if (match) {
+            
+            switch (operator) {
+                case '$in':
+                    match = that.config[operator].indexOf(fieldValue) > -1;
+                    break;
+                default:
+                    // TODO: Do we need one?
+            }
+        }
+    });
+
+    return match;
+};
 
 // =======================================
 exports.create = create;
