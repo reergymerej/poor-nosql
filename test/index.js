@@ -66,13 +66,15 @@ describe('inserting multiple records', function () {
 
     beforeEach(function () {
         records = [
-            { foo: 'bar' },
-            { baz: 'quux' }
+            { multipleInsertTest: true },
+            { multipleInsertTest: true }
         ];
     });
 
-    afterEach(function () {
-        console.log('need to delete records');
+    afterEach(function (done) {
+        poor.delete({ multipleInsertTest: { $in: [true] } }, function (err, deleted) {
+            done();
+        });
     });
 
     it('should work', function (done) {
@@ -90,8 +92,8 @@ describe('queries', function () {
 
     beforeEach(function (done) {
         records = [
-            { foo: 'bar' },
-            { baz: 'quux' }
+            { queriesTest: true },
+            { queriesTest: true }
         ];
 
         poor.create(records, function (err, added) {
@@ -99,28 +101,65 @@ describe('queries', function () {
         });
     });
 
-    afterEach(function () {
-
+    afterEach(function (done) {
+        poor.delete({ queriesTest: { $in: [true] } }, function () {
+            done();
+        });
     });
 
-    it('should return records based on criteria', function (done) {
-        var ids = (function () {
-            var ids = [];
-            records.forEach(function (record) {
-                ids.push(record._id);
-            });
-            return ids;
-        }());
+    describe('$in', function () {
+        it('should match when the field value is in the array', function (done) {
+            var ids = (function () {
+                var ids = [];
+                records.forEach(function (record) {
+                    ids.push(record._id);
+                });
+                return ids;
+            }());
 
+            var criteria = {
+                _id: {
+                    $in: ids
+                }
+            };
+
+            poor.read(criteria, function (err, records) {
+                will(records.length).be(2);
+                done();
+            });
+        });
+    });
+});
+
+describe('deleting multiple records', function () {
+    var records;
+
+    beforeEach(function (done) {
+        records = [
+            { deleteTest: true },
+            { deleteTest: true },
+            { deleteTest: true }
+        ];
+
+        poor.create(records, function (err, added) {
+            done();
+        });
+    });
+
+    it('should work by queries', function (done) {
         var criteria = {
-            _id: {
-                $in: ids
+            deleteTest: {
+                $in: [true]
             }
         };
 
-        poor.read(criteria, function (err, records) {
-            will(records.length).be(2);
-            done();
+        poor.delete(criteria, function (err, deleted) {
+            will(err).be(null);
+
+            poor.read(criteria, function (err, records) {
+                will(records.length).be(0);
+                done();
+            });
         });
     });
 });

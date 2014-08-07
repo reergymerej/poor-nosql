@@ -147,15 +147,28 @@ var update = function (id, data, done) {
 
 /**
 * Delete a record by id.
-* @param {Number} id
-* @param {Function} done - err, {Boolean} deleted 
+* @param {Number/Object} query _id number of record or query object
+* @param {Function} done - err, {Number} deleted
 */
-var del = function (id, done) {
+var del = function (query, done) {
     openDb(function (err, db) {
-        var deleted;
+        var deleted = 0;
+        var matches = [];
 
         if (!err) {
-            deleted = delete db[id];
+            if (typeof query === 'number') {
+                if (db[query]) {
+                    delete db[query];
+                    deleted = 1;
+                }
+            } else {
+                query = new Query(query);
+                matches = query.getMatches(db);
+                matches.forEach(function (record) {
+                    delete db[record._id];
+                    deleted++;
+                });
+            }
 
             closeDb(db, function (err) {
                 if (typeof done === 'function') {
